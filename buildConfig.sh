@@ -51,7 +51,8 @@ fi
 
 # Form the cluster name by extracting first name from applicant name (must be in email form) with 
 # strimlined date value
-CLUSTER=`echo $APPLICANT | cut -d@ -f1 | cut -d. -f1`-`date "+%y%m%d"`
+CLUSTER=`echo $APPLICANT | cut -d@ -f1`-`date -d $START_DATE +%y%m%d`_`date -d $END_DATE +%y%m%d`
+echo "CLUSTER name: $CLUSTER"
 CFG_ROOT=$CFG_ROOT/$CLUSTER
 mkdir -p $CFG_ROOT
 cp $CSV_FILE $CFG_ROOT
