@@ -65,7 +65,7 @@ echo "Expected start date: $START_DATE" >> $CFG_ROOT/cluster.info
 echo "Planned end date: $END_DATE" >> $CFG_ROOT/cluster.info
 
 
-find $CFG_ROOT -type f \( -name cluster.cfg -o -name hosts -o -name rdp.cluster -o -name memsql.cluster -o -name voltdb.cluster \) -exec rm {} +  
+find $CFG_ROOT -type f \( -name cluster.cfg -o -name hosts -o -name rdp.cluster -o -name memsql.cluster -o -name voltdb.cluster -o -name *cmd \) -exec rm {} +  
 
 echo "127.0.0.1   localhost localhost.localdomain" > $CFG_ROOT/hosts
 
@@ -73,8 +73,7 @@ while IFS=, read HOST IP MASK CPU MEM RDPROLE DS DSROLE VHOST
 do
 	echo "$IP $HOST" >> $CFG_ROOT/hosts
 	VCPU=`expr $CPU \* 100`
-	echo "$HOST,$IP,$MASK,$VCPU,$MEM" >> $CFG_ROOT/cluster.cfg
-	echo "$HOST,$IP,$MASK,$VCPU,$MEM" >> $CFG_ROOT/$VHOST.cfg
+	echo "$HOST,$IP,$MASK,$VCPU,$MEM,$VHOST" >> $CFG_ROOT/cluster.cfg
 	if [[ -e $CFG_ROOT/vhost.lst ]]; then 
 		grep $VHOST $CFG_ROOT/vhost.lst > /dev/null
 		if (( $? != 0 )); then

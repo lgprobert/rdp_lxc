@@ -4,11 +4,16 @@ import json
 import simplejson
 from collections import OrderedDict
 
+fp=sys.argv[1]
+if not os.path.exists(fp):
+	print os.path.basename(fp) + " is not existed"
+	exit(1)
+
 with open('cluster.config.sample', 'r') as f:
         data=json.load(f, object_pairs_hook=OrderedDict)
 
 nodeDict=OrderedDict()
-with open('rdp.cluster') as f:
+with open(fp) as f:
     for line in f:
         node, role = line.split(':')
         nodeDict.update({node:role})
