@@ -1,0 +1,5 @@
+dqc,192.168.10.80,255.255.255.0,4,32,dqc,memsql,memsql-p,boray05
+dqe1,192.168.10.81,255.255.255.0,4,32,dqe,memsql,memsql-w,boray03
+dqe2,192.168.10.82,255.255.255.0,4,32,dqe,memsql,memsql-w,boray03
+dqe3,192.168.10.83,255.255.255.0,4,16,dqe,voltdb,voltdb-p,boray01
+dqe4,192.168.10.84,255.255.255.0,4,16,dqe,voltdb,voltdb-w,boray02
