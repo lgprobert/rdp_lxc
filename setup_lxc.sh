@@ -10,7 +10,7 @@ if [ $# -lt 14 ]; then
     exit 1
 fi
 
-TEMPLATE="co7-1"
+TEMPLATE="co72"
 LXCPATH=`lxc-config lxc.lxcpath`
 
 while getopts ":t:d:n:i:m:g:p:c:M:" opt_char
@@ -23,7 +23,8 @@ do
 			;;
 
 		d)
-			CFGDIR=/varlib/rapids/cfg/clusters/$OPTARG
+			CFGDIR=/var/lib/rapids/cfg/clusters/$OPTARG
+			echo "Cluster configuration data directory: $CFGDIR"
 			;;
 		n) 
 			LXCNAME=$OPTARG 
@@ -53,7 +54,7 @@ done
 #lxc-clone $TEMPLATE $LXCNAME
 # r2.x clone command
 #lxc-copy -B btrfs -n $TEMPLATE -N $LXCNAME
-lxc-copy -B zfs  -n TEMPLATE -N $LXCNAME
+lxc-copy -B zfs  -n $TEMPLATE -N $LXCNAME
 
 echo "Setup container $LXCNAME, wait ..."
 
@@ -63,13 +64,14 @@ echo "lxc.cgroup.memory.limit_in_bytes  = ${MEM}G" >> config
 
 # Goes to /etc to configure hosts and hostname files
 cd rootfs/etc
+echo "Copying $CFGDIR/hosts to target container"
 cp $CFGDIR/hosts .
 echo $LXCNAME > hostname
 # add hostname info to network
 cd sysconfig
 # add static IP info to eth0 config file
 cd network-scripts
-sed -i 's/dhcp/none/; /IPADDR/ s/=\(.*\)/='"$IP"'/; /NETMASK/ s/=\(.*\)/='"$MASK"'/; /^MTU=/ s/$/1500/' ifcfg-eth0
+sed -i 's/dhcp/none/; /IPADDR/ s/=\(.*\)/='"$IP"'/; /NETMASK/ s/=\(.*\)/='"$MASK"'/; /^MTU=/ s/=\(.*\)/=1500/' ifcfg-eth0
 # return to conatiner's global root directory
 cd $LXCPATH/$LXCNAME
 

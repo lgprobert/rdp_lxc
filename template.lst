@@ -1,4 +1,5 @@
 bare:co72
 rdp:rdp
+rdpmemsql:rdpmemsql
 memsql:memsql
 voltdb:rdp

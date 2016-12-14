@@ -35,4 +35,5 @@ data['nodeConfig']=nodeList
 with open('cluster.config', 'w') as f:
         f.write(simplejson.dumps(data, indent=4, sort_keys=True))
 
-print json.dumps(data, indent=4)
+#print json.dumps(data, indent=4)
+print "RapidsDB configuration files generated."
