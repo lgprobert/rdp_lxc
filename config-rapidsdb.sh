@@ -13,7 +13,7 @@ while getopts ":d:" opt_char
 do
     case $opt_char in
         d)  
-            CFGDIR=/root/cfg/clusters/$OPTARG
+            CFGDIR=/var/lib/rapidsdb/cfg/clusters/$OPTARG
             ;;  
         \?)
             echo "$OPTARG is not a valid option."
@@ -29,15 +29,15 @@ DQC=`cat ${CFGDIR}/rdp.cluster | grep dqc | cut -d: -f1`
 cd $CFGDIR
 while IFS=: read HOST ROLE 
 do
-	echo "host: $HOST, Role: $DSROLE, Node Count: $NODE_COUNT"
+	echo "host: $HOST, Role: $DSROLE"
 	echo "Transfering RapidsDB cluster configuration files to target conatiner: $HOST"
-	pdcp -w $HOST zk.config cluster.config /opt/rdp/current/cfg
+	pdcp -w $HOST -l rapids zk.config cluster.config /opt/rdp/current/cfg
 done < rdp.cluster 
 
 echo "Starting Zookeeper service ..."
-ssh rapids@$MASTER "cd /opt/zookeeper/bin; ./zkServer.sh start"
+ssh rapids@$DQC "cd /opt/zookeeper/bin; ./zkServer.sh start"
 echo "Populate RapidsDB configuration to Zookeeper ..."
-ssh rapids@$MASTER "cd /opt/rdp/current; ./bootstrapper.sh -a populate"
+ssh rapids@$DQC "cd /opt/rdp/current; ./bootstrapper.sh -a populate"
 echo "Starting RapidsDB service ..."
-ssh rapids@$MASTER "cd /opt/rdp/current; ./bootstrapper.sh -a start"
+ssh rapids@$DQC "cd /opt/rdp/current; ./bootstrapper.sh -a start"
 echo "RapidsDB configuration is finished."

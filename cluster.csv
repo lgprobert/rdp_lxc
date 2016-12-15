@@ -1,3 +1,3 @@
-dqc,192.168.10.86,255.255.255.0,4,32,dqc,memsql,memsql-p,boray04
-dqe1,192.168.10.87,255.255.255.0,4,32,dqe,memsql,memsql-w,boray04
+dqc,192.168.10.86,255.255.255.0,4,32,dqc,memsql,master,boray04
+dqe1,192.168.10.87,255.255.255.0,4,32,dqe,memsql,leaf:2,boray04
 dqe3,192.168.10.88,255.255.255.0,4,16,dqe,voltdb,voltdb-p,boray04

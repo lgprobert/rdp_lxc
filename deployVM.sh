@@ -17,7 +17,7 @@ do
             ZKLIST=$OPTARG
             ;;
         d)  
-            CFGDIR=$OPTARG
+            CLUSTER=$OPTARG
             ;;  
         \?)
 	        echo "$OPTARG is not a valid option."
@@ -27,7 +27,8 @@ do
     esac
 done
 
-CLUSTER=`basename $CFGDIR`
+#CLUSTER=`basename $CFGDIR`
+CFGDIR="/var/lib/rapidsdb/cfg/clusters/$CLUSTER"
 echo "CLUSTER: $CLUSTER"
 
 if [[ ! (-d ${CFGDIR}) ]]; then
@@ -53,14 +54,14 @@ while IFS=, read HOST IP MASK CPU MEM RDPROLE DSTYPE DSROLE VMHOST
 do
 	case $RDPROLE in
 		none)
-			if [[ $DSTYPE == "memsql" && $DSROLE == "memsql-p" ]]; then
+			if [[ $DSTYPE == "memsql" && $DSROLE == "master" ]]; then
 				TEMPLATE=${templist["memsql"]}
 			else
 				TEMPLATE=${templist["bare"]}
 			fi
 			;;
 		dqc)
-			if [[ $DSROLE == "memsql-p" && $RDPROLE == "dqc" ]]; then
+			if [[ $DSROLE == "master" && $RDPROLE == "dqc" ]]; then
 				TEMPLATE=${templist["rdpmemsql"]}
 			else
 				TEMPLATE=${templist["rdp"]}
@@ -71,11 +72,13 @@ do
 			;;
 	esac
 
-	if [[ $RDPROLE == "dqc" && $ZKLIST=="" ]]; then
-		sed 's/localhost/'"$IP"'/' zk.config.sample > zk.config
+	if [[ $RDPROLE == "dqc" ]]; then
+		if [[ $ZKLIST=="" ]]; then
+			sed 's/localhost/'"$IP"'/' zk.config.sample > zk.config
+		else
+			sed 's/localhost/'"$ZKLIST"'/' zk.config.sample > zk.config
+		fi
 		mv zk.config $CFGDIR
-	else
-		sed 's/localhost/'"$ZKLIST"'/' zk.config.sample > zk.config
 	fi
 	VCPU=`expr $CPU \* 100`
 	echo "setup_lxc.sh -d $CLUSTER -n $HOST -i $IP -m $MASK -c $VCPU -M $MEM -t $TEMPLATE" >> $CFGDIR/${VMHOST}.cmd

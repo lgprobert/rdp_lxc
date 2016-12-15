@@ -10,6 +10,7 @@ if (( $# < 6 )); then
 	exit
 fi
 START_DATE=`date "+%Y/%m/%d"`
+CFGROOT="/var/lib/rapidsdb/cfg/clusters"
 
 while getopts ":f:n:s:e:" opt_char
 do
@@ -43,53 +44,53 @@ if (( $CHECK_STARTDATE == 1 || CHECK_ENDDATE == 1 )); then
 	exit
 fi
 
-if [[ ! (-e /root/cfg/clusters && -d /root/cfg/clusters) ]]; then
-	mkdir -p /root/cfg/clusters
-else
-	CFG_ROOT="/root/cfg/clusters"
+if [[ ! (-e $CFGROOT && -d $CFGROOT) ]]; then
+	mkdir -p $CFGROOT
 fi
 
 # Form the cluster name by extracting first name from applicant name (must be in email form) with 
 # strimlined date value
-CLUSTER=`echo $APPLICANT | cut -d@ -f1`-`date -d $START_DATE +%y%m%d`_`date -d $END_DATE +%y%m%d`
+RANDOMID=`cat /dev/urandom | tr -dc 0-9 | head -c 6`
+#CLUSTER=`echo $APPLICANT | cut -d@ -f1`-`date -d $START_DATE +%y%m%d`_`date -d $END_DATE +%y%m%d`
+CLUSTER=`echo $APPLICANT | cut -d@ -f1`${RANDOMID}
 echo "CLUSTER name: $CLUSTER"
-CFG_ROOT=$CFG_ROOT/$CLUSTER
-mkdir -p $CFG_ROOT
-cp $CSV_FILE $CFG_ROOT
-echo "Cluster name: $CLUSTER" > $CFG_ROOT/cluster.info
-echo "Applicant name: $APPLICANT" >> $CFG_ROOT/cluster.info
-echo "Requested resources: " >> $CFG_ROOT/cluster.info
-cat $CSV_FILE >> $CFG_ROOT/cluster.info
+CFGDIR=$CFGROOT/$CLUSTER
+mkdir -p $CFGDIR
+cp $CSV_FILE $CFGDIR
+echo "Cluster name: $CLUSTER" > $CFGDIR/cluster.info
+echo "Applicant name: $APPLICANT" >> $CFGDIR/cluster.info
+echo "Requested resources: " >> $CFGDIR/cluster.info
+cat $CSV_FILE >> $CFGDIR/cluster.info
 echo
-echo "Expected start date: $START_DATE" >> $CFG_ROOT/cluster.info
-echo "Planned end date: $END_DATE" >> $CFG_ROOT/cluster.info
+echo "Expected start date: $START_DATE" >> $CFGDIR/cluster.info
+echo "Planned end date: $END_DATE" >> $CFGDIR/cluster.info
 
 
-find $CFG_ROOT -type f \( -name cluster.cfg -o -name hosts -o -name rdp.cluster -o -name memsql.cluster -o -name voltdb.cluster -o -name *cmd \) -exec rm {} +  
+find $CFGDIR -type f \( -name cluster.cfg -o -name hosts -o -name rdp.cluster -o -name memsql.cluster -o -name voltdb.cluster -o -name *cmd \) -exec rm {} +  
 
-echo "127.0.0.1   localhost localhost.localdomain" > $CFG_ROOT/hosts
+echo "127.0.0.1   localhost localhost.localdomain" > $CFGDIR/hosts
 
 while IFS=, read HOST IP MASK CPU MEM RDPROLE DS DSROLE VHOST
 do
-	echo "$IP $HOST" >> $CFG_ROOT/hosts
+	echo "$IP $HOST" >> $CFGDIR/hosts
 	VCPU=`expr $CPU \* 100`
-	echo "$HOST,$IP,$MASK,$VCPU,$MEM,$VHOST" >> $CFG_ROOT/cluster.cfg
-	if [[ -e $CFG_ROOT/vhost.lst ]]; then 
-		grep $VHOST $CFG_ROOT/vhost.lst > /dev/null
+	echo "$HOST,$IP,$MASK,$VCPU,$MEM,$VHOST" >> $CFGDIR/cluster.cfg
+	if [[ -e $CFGDIR/vhost.lst ]]; then 
+		grep $VHOST $CFGDIR/vhost.lst > /dev/null
 		if (( $? != 0 )); then
-			echo $VHOST >> $CFG_ROOT/vhost.lst
+			echo $VHOST >> $CFGDIR/vhost.lst
 		fi
 	else
-		echo $VHOST >> $CFG_ROOT/vhost.lst
+		echo $VHOST >> $CFGDIR/vhost.lst
 	fi
 	if [[ $RDPROLE != "none" ]]; then
-		echo $HOST:$RDPROLE >> $CFG_ROOT/rdp.cluster
+		echo $IP:$RDPROLE >> $CFGDIR/rdp.cluster
 	fi
 	if [[ $DS != "no" ]]; then
 		if [[ $DS == "memsql" ]]; then
-			echo $HOST:$DSROLE >> $CFG_ROOT/memsql.cluster
+			echo $IP:$DSROLE >> $CFGDIR/memsql.cluster
 		elif [[ $DS == "voltdb" ]]; then
-		    echo $HOST:$DSROLE >> $CFG_ROOT/voltdb.cluster
+		    echo $IP:$DSROLE >> $CFGDIR/voltdb.cluster
 		fi
 	fi
 done < $CSV_FILE
