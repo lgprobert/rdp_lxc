@@ -10,13 +10,13 @@ if (( $# < 2 )); then
 fi
 
 ZKLIST=''
-while getopts ":z:d:" opt_char
+while getopts ":z:n:" opt_char
 do
     case $opt_char in
         z)
             ZKLIST=$OPTARG
             ;;
-        d)  
+        n)  
             CLUSTER=$OPTARG
             ;;  
         \?)
@@ -28,7 +28,7 @@ do
 done
 
 #CLUSTER=`basename $CFGDIR`
-CFGDIR="/var/lib/rapidsdb/cfg/clusters/$CLUSTER"
+CFGDIR="/var/lib/rapids/cfg/clusters/$CLUSTER"
 echo "CLUSTER: $CLUSTER"
 
 if [[ ! (-d ${CFGDIR}) ]]; then
@@ -84,10 +84,13 @@ do
 	echo "setup_lxc.sh -d $CLUSTER -n $HOST -i $IP -m $MASK -c $VCPU -M $MEM -t $TEMPLATE" >> $CFGDIR/${VMHOST}.cmd
 done < $CFGDIR/cluster.csv
 
-# Prepare RapidsDB cluster configuration file
-echo "Generating RapidsDB configuration file"
-python mk_rdpConfig.py $CFGDIR/rdp.cluster
-mv cluster.config $CFGDIR
+# Prepare RapidsDB cluster configuration file for RapidsDB cluster
+grep rapidsdb $CFGDIR/cluster.type > /dev/null
+if (( $? == 0 )); then
+	echo "Generating RapidsDB configuration file"
+	python mk_rdpConfig.py $CFGDIR/rdp.cluster
+	mv cluster.config $CFGDIR
+fi
 
 # Copy specific config files to remote VM hosts
 REMOTE_ROOT="/var/lib/rapids/cfg/clusters/${CLUSTER}"
@@ -100,12 +103,18 @@ do
 		chmod +x $CFGDIR/install_container.cmd
 		ssh $VMHOST "if [[ ! (-d $REMOTE_ROOT) ]]; then mkdir -p $REMOTE_ROOT; fi"
 		pdcp -w $VMHOST $CFGDIR/install_container.cmd $CFGDIR/hosts $REMOTE_ROOT
-		if [[ -e $CFGDIR/cluster.config ]]; then
-			pdcp -w $VMHOST $CFGDIR/cluster.config $REMOTE_ROOT
-		fi
-		if [[ -e $CFGDIR/zk.config ]]; then
-			pdcp -w $VMHOST $CFGDIR/zk.config $REMOTE_ROOT
+		grep rapidsdb $CFGDIR/cluster.type > /dev/null
+		if (( $? == 0 )); then
+			if [[ -e $CFGDIR/cluster.config ]]; then
+				pdcp -w $VMHOST $CFGDIR/cluster.config $REMOTE_ROOT
+			elif [[ -e $CFGDIR/zk.config ]]; then
+				pdcp -w $VMHOST $CFGDIR/zk.config $REMOTE_ROOT
+			fi
 		fi
 	fi
 done
 echo "The deployment script for all VM Hosts are ready"
+for vhost in `cat $CFGDIR/vhost.lst`
+do
+	pdsh -w $vhost "cd /var/lib/rapids/cfg/clusters/$CLUSTER; ./install_container.cmd"
+done

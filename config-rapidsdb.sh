@@ -13,7 +13,7 @@ while getopts ":d:" opt_char
 do
     case $opt_char in
         d)  
-            CFGDIR=/var/lib/rapidsdb/cfg/clusters/$OPTARG
+            CFGDIR=/var/lib/rapids/cfg/clusters/$OPTARG
             ;;  
         \?)
             echo "$OPTARG is not a valid option."

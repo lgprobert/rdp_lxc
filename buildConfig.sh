@@ -1,6 +1,6 @@
 #!/bin/sh
 usage() {
-  echo "usage: $0 -f <csv_format_config_file> -n <applicant_name> [-s <start_date>] -e <end_date>"  
+  echo "usage: $0 -f <csv_format_config_file> -n <applicant_name> [-s <start_date>] -e <end_date> -t <rapidsdb|memsql|centos>"  
 }
 
 
@@ -10,9 +10,9 @@ if (( $# < 6 )); then
 	exit
 fi
 START_DATE=`date "+%Y/%m/%d"`
-CFGROOT="/var/lib/rapidsdb/cfg/clusters"
+CFGROOT="/var/lib/rapids/cfg/clusters"
 
-while getopts ":f:n:s:e:" opt_char
+while getopts ":f:n:s:e:t:" opt_char
 do
     case $opt_char in
         f)
@@ -27,6 +27,9 @@ do
 		e) 
 			END_DATE=$OPTARG
 			;;
+        t)
+            CLUSTER_TYPE=$OPTARG
+            ;;
         \?)
             echo "$OPTARG is not a valid option."
             usage
@@ -45,17 +48,49 @@ if (( $CHECK_STARTDATE == 1 || CHECK_ENDDATE == 1 )); then
 fi
 
 if [[ ! (-e $CFGROOT && -d $CFGROOT) ]]; then
-	mkdir -p $CFGROOT
+    mkdir -p $CFGROOT
 fi
 
-# Form the cluster name by extracting first name from applicant name (must be in email form) with 
-# strimlined date value
+
+# Form the cluster name by extracting first name from applicant name (must be in email form) with strimlined date value
 RANDOMID=`cat /dev/urandom | tr -dc 0-9 | head -c 6`
-#CLUSTER=`echo $APPLICANT | cut -d@ -f1`-`date -d $START_DATE +%y%m%d`_`date -d $END_DATE +%y%m%d`
-CLUSTER=`echo $APPLICANT | cut -d@ -f1`${RANDOMID}
-echo "CLUSTER name: $CLUSTER"
+
+echo $APPLICANT | grep '@' > /dev/null
+if (( $? == 1 )); then
+	echo "Error: the applicant's name must be a valide email address."
+	exit 1
+else
+	CLUSTER=`echo $APPLICANT | cut -d@ -f1`${RANDOMID}
+fi
 CFGDIR=$CFGROOT/$CLUSTER
-mkdir -p $CFGDIR
+
+# Determine cluster type
+case "$CLUSTER_TYPE" in 
+	rapidsdb|memsql|centos)
+		if [[ $CLUSTER_TYPE == 'rapidsdb' ]]; then
+			grep dqc cluster.csv > /dev/null
+			if (( $? == 1 )); then
+				echo "You must assign at least one DQC node in a RapidsDB cluster."
+				exit 1
+			fi
+		elif [[ $CLUSTER_TYPE == 'memsql' ]]; then
+			grep master cluster.csv > /dev/null
+            if (( $? == 1 )); then
+                echo "You must assign one master node in a MemSQL cluster." 
+				exit 1
+            fi
+		fi
+		mkdir -p $CFGDIR
+		echo $CLUSTER_TYPE > $CFGDIR/cluster.type
+		;;
+	*)
+		echo "Error: the provided cluster value is not recognized."
+		exit 1
+		;;
+esac
+
+
+echo "CLUSTER name: $CLUSTER"
 cp $CSV_FILE $CFGDIR
 echo "Cluster name: $CLUSTER" > $CFGDIR/cluster.info
 echo "Applicant name: $APPLICANT" >> $CFGDIR/cluster.info
@@ -94,3 +129,5 @@ do
 		fi
 	fi
 done < $CSV_FILE
+
+echo "Cluster cofniguration is generated."

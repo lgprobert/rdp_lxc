@@ -1,0 +1,22 @@
+# .bash_profile
+figlet -f bubble Borday Data
+echo "Welcome to Boray Lab."
+date
+
+# Get the aliases and functions
+if [ -f ~/.bashrc ]; then
+	. ~/.bashrc
+fi
+
+# User specific environment and startup programs
+export IP=`ip -o -f inet addr show dev eth0 | awk '{print $4}' | cut -d'/' -f1`
+
+PATH=$PATH:$HOME/.local/bin:$HOME/bin
+
+export PATH
+JAVA_HOME=/usr/java/jdk1.8.0_112
+export JAVA_HOME
+PATH=$PATH:$HOME/.local/bin:$HOME/bin:$JAVA_HOME:/opt/data_store/voltdb/bin:$HOME/scripts:./
+CLASSPATH=$CLASSPATH:/opt/data_store/voltdb/*:./
+
+export PATH CLASSPATH

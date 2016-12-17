@@ -1,0 +1,10 @@
+#!/bin/sh
+export VOLTDB_HEAPMAX="2048"
+
+cd ~/scripts
+if [[ -e nohup.out ]]
+then
+	rm msg.out
+fi
+
+nohup voltdb create tpchOrig.jar --deployment=deploy.xml --internalinterface=$IP --externalinterface=$IP --host=MASTER:3021 --zookeeper=2192 &

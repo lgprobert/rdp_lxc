@@ -1,0 +1,19 @@
+# .bashrc
+
+# User specific aliases and functions
+
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+fi
+export IP=`ip -o -f inet addr show dev eth0 | awk '{print $4}' | cut -d'/' -f1`
+JAVA_HOME=/usr/java/jdk1.8.0_112
+export JAVA_HOME
+PATH=$PATH:$HOME/.local/bin:$HOME/bin:$JAVA_HOME:/opt/data_store/voltdb/bin:$HOME/scripts
+CLASSPATH=$CLASSPATH:/opt/data_store/voltdb/*:./
+
+export PATH CLASSPATH
