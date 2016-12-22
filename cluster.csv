@@ -1,3 +1,0 @@
-dqc,192.168.10.86,255.255.255.0,4,4,dqc,voltdb,master,boray04
-dqe1,192.168.10.87,255.255.255.0,4,8,dqe,voltdb,worker,boray04
-dqe2,192.168.10.88,255.255.255.0,4,8,dqe,voltdb,worker,boray04
