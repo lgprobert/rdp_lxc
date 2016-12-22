@@ -31,9 +31,9 @@ if (( $? == 1 )); then
 else
 	MASTER=`grep master $CFGDIR/voltdb.cluster | cut -d: -f1`
 fi
-sed "s/MASTER/'"$MASTER"'/" startds.sh.sample > startds.sh
+sed "s/MASTER/'"$MASTER"'/" template/startds.sh.sample > startds.sh
 HOSTQTY=`wc -l $CFGDIR/voltdb.cluster | awk '{print $1}'`
-sed 's/HOSTCOUNT/'"${HOSTQTY}"'/' deploy.xml.sample > deploy.xml
+sed 's/HOSTCOUNT/'"${HOSTQTY}"'/' template/deploy.xml.sample > deploy.xml
 
 mv deploy.xml $CFGDIR
 mv startds.sh $CFGDIR

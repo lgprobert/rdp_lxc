@@ -9,7 +9,7 @@ if not os.path.exists(fp):
 	print os.path.basename(fp) + " is not existed"
 	exit(1)
 
-with open('cluster.config.sample', 'r') as f:
+with open('template/cluster.config.sample', 'r') as f:
         data=json.load(f, object_pairs_hook=OrderedDict)
 
 nodeDict=OrderedDict()

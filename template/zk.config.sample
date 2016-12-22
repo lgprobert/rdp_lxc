@@ -1,0 +1,11 @@
+# A list of zookeeper servers in a cluster to connect to.
+# The format is a comma-separated set of "host:port" entries.
+# e.g.:
+# nodeList = 192.168.1.1:2181, fred:2181, wilma:2181, bambam:2181
+nodeList = localhost:2181
+
+# The path within Zookeeper where all data is kept for this Rapids cluster.
+# This separates data from multiple separate Rapids clusters that all share
+# the same Zookeeper cluster.
+# The value must start with a forward slash.
+rootDir = /rdp

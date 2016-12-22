@@ -1,6 +1,6 @@
 #!/bin/sh 
 usage() {
-  echo "usage: $0 [-z <zookeeper host list, default: dqc:2181>] -d <cluster_cfg_dir>"
+  echo "usage: $0 [-z <zookeeper host list, default: dqc:2181>] -n <cluster_name>"
 }
 
 if (( $# < 2 )); then
@@ -27,7 +27,6 @@ do
     esac
 done
 
-#CLUSTER=`basename $CFGDIR`
 CFGDIR="/var/lib/rapids/cfg/clusters/$CLUSTER"
 echo "CLUSTER: $CLUSTER"
 
@@ -74,9 +73,9 @@ do
 
 	if [[ $RDPROLE == "dqc" ]]; then
 		if [[ $ZKLIST=="" ]]; then
-			sed 's/localhost/'"$IP"'/' zk.config.sample > zk.config
+			sed 's/localhost/'"$IP"'/' template/zk.config.sample > zk.config
 		else
-			sed 's/localhost/'"$ZKLIST"'/' zk.config.sample > zk.config
+			sed 's/localhost/'"$ZKLIST"'/' template/zk.config.sample > zk.config
 		fi
 		mv zk.config $CFGDIR
 	fi

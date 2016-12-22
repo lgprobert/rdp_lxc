@@ -1,6 +1,6 @@
 #!/bin/sh
 usage() {
-  echo "usage: $0 -d <cluster_name>"
+  echo "usage: $0 -n <cluster_name>"
 }
 
 if (( $# < 2 )); then
@@ -9,10 +9,10 @@ if (( $# < 2 )); then
         exit
 fi
 
-while getopts ":d:" opt_char
+while getopts ":n:" opt_char
 do
     case $opt_char in
-        d)  
+        n)  
             CFGDIR=/var/lib/rapids/cfg/clusters/$OPTARG
             ;;  
         \?)

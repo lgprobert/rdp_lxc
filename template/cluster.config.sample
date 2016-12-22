@@ -1,0 +1,29 @@
+{
+  "commonNodeConfig": {
+    "enabled"               : true,
+    "role"                  : "DQE",
+    "clusterPort"           : 4334,
+    "sshUsername"           : "rapids",
+    "sshPathToIdentityFile" : "~/.ssh/id_rsa",
+    "installationDir"       : "/opt/rdp",
+    "workingDir"            : "/opt/rdp/current",
+    "startupCommand"        : "sh ./startDqx.sh",
+    "shutdownCommand"       : "sh ./stopDqx.sh"
+  },
+
+  "nodeConfig": [
+    {
+      "name"                : "node1",
+      "role"                : "DQC",
+      "hostname"            : "192.168.1.1"
+    },
+    {
+      "name"                : "node2",
+      "hostname"            : "192.168.1.2"
+    },
+    {
+      "name"                : "node3",
+      "hostname"            : "192.168.1.3"
+    }
+  ]
+}

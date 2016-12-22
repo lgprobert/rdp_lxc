@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<deployment>
+   <cluster hostcount="HOSTCOUNT" 
+            sitesperhost="4" />
+   <httpd enabled="true">
+      <jsonapi enabled="true"/>
+   </httpd>
+   <systemsettings>
+        <temptables maxsize="500"/>
+        <networkbuffer maxsize="200"/>
+    </systemsettings>
+</deployment>
