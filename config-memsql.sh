@@ -36,8 +36,8 @@ do
 		ssh $HOST "memsql-ops stop; memsql-ops start -h $HOST"
 		AGENTID=`ssh $HOST "memsql-ops agent-list -r primary -q"`
 		echo "Checking if master Memsql has been deployed ..."
-		ssh $HOST "memsql-ops agent-list --memsql-role master -q"
-		if (( $? == 1 )); then
+		result=`ssh $HOST "memsql-ops memsql-list --agent-id $AGENTID"`
+		if [[ $result == "No MemSQL nodes were found." ]]; then
 			echo "Deploying master Memsql node on $HOST ..."
 			ssh $HOST ifdown eth1
 			ssh $HOST "memsql-ops memsql-deploy -r master -a $AGENTID --community-edition"
