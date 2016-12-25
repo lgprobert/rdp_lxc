@@ -1,16 +1,10 @@
 #!/bin/sh 
 usage() {
-  echo "usage: $0 [-z <zookeeper host list, default: dqc:2181>] -n <cluster_name>"
+  echo "usage: $0 [-z <zookeeper host list, default: dqc:2181>] -n <cluster_name> -h <help message>"
 }
 
-if (( $# < 2 )); then
-	echo "You must provide the cluster configuration path."
-	usage
-	exit
-fi
-
 ZKLIST=''
-while getopts ":z:n:" opt_char
+while getopts ":z:n:h" opt_char
 do
     case $opt_char in
         z)
@@ -19,6 +13,10 @@ do
         n)  
             CLUSTER=$OPTARG
             ;;  
+        \h)
+            usage
+            exit 0
+            ;;
         \?)
 	        echo "$OPTARG is not a valid option."
             usage
@@ -26,6 +24,12 @@ do
             ;;
     esac
 done
+
+if (( $# < 2 )); then
+    echo "You must provide the cluster configuration path."
+    usage
+    exit
+fi
 
 CFGDIR="/var/lib/rapids/cfg/clusters/$CLUSTER"
 echo "CLUSTER: $CLUSTER"
@@ -117,3 +121,7 @@ for vhost in `cat $CFGDIR/vhost.lst`
 do
 	pdsh -w $vhost "cd /var/lib/rapids/cfg/clusters/$CLUSTER; ./install_container.cmd"
 done
+
+echo
+echo
+echo "The containers for cluster $CLUSTER is finished deployment, you may still need to run further configuration tools to finish the application configuration."

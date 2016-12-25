@@ -1,18 +1,13 @@
 #!/bin/sh
 usage() {
-  echo "usage: $0 -f <csv_format_config_file> -n <applicant_name> [-s <start_date>] -e <end_date> -t <rapidsdb|memsql|centos>"  
+  echo "usage: $0 -f <csv_format_config_file> -n <applicant_name> [-s <start_date>] -e <end_date> -t <rapidsdb|memsql|centos> -h <help message>"  
 }
 
 
-if (( $# < 6 )); then
-	echo "The number of options is not correct!"
-	usage
-	exit
-fi
 START_DATE=`date "+%Y/%m/%d"`
 CFGROOT="/var/lib/rapids/cfg/clusters"
 
-while getopts ":f:n:s:e:t:" opt_char
+while getopts ":f:n:s:e:t:h" opt_char
 do
     case $opt_char in
         f)
@@ -30,6 +25,10 @@ do
         t)
             CLUSTER_TYPE=$OPTARG
             ;;
+		h)
+			usage
+			exit 0
+			;;
         \?)
             echo "$OPTARG is not a valid option."
             usage
@@ -37,6 +36,12 @@ do
             ;;
     esac
 done
+
+if (( $# < 6 )); then
+    echo "The number of options is not correct!"
+    usage
+    exit
+fi
 
 date -d $START_DATE > /dev/null 2>&1
 CHECK_STARTDATE=$?
