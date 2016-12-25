@@ -29,7 +29,6 @@ DQC=`cat ${CFGDIR}/rdp.cluster | grep dqc | cut -d: -f1`
 cd $CFGDIR
 while IFS=: read HOST ROLE 
 do
-	echo "host: $HOST, Role: $DSROLE"
 	echo "Transfering RapidsDB cluster configuration files to target conatiner: $HOST"
 	pdcp -w $HOST -l rapids zk.config cluster.config /opt/rdp/current/cfg
 done < rdp.cluster 
