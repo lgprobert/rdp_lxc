@@ -1,4 +1,4 @@
-#LXC based Container Service Platform Auto-Deployment Tools
+## LXC based Container Service Platform Auto-Deployment Tools
 
 - 1st step: buildConfig.sh
 - 2nd step: deployVM.sh
